@@ -17,3 +17,4 @@ run_test_bcsstk03: test_bcsstk03
 
 clean:
 	rm -f test_runner
+	rm -f test_bcsstk03_runner

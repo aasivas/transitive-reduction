@@ -23,6 +23,9 @@
 #include <stack>
 #include <utility>
 #include <cmath>
+#include <random>
+#include <numeric>
+#include <chrono>
 
 void dfs_csc4(int current_node, int n, const std::vector<int>& col_pointers, const std::vector<int>& col_ends, const std::vector<int>& row_indices, std::vector<bool>& visited, int max_depth) {
     std::vector<std::pair<int, int>> s;
@@ -62,7 +65,17 @@ std::tuple<std::vector<int>, std::vector<int>, std::vector<int>> transitive_redu
     std::copy_n(col_pointers.begin(), n, reduced_col_pointers.begin());
     std::copy_n(col_pointers.begin() + 1, n, reduced_col_ends.begin());
 
-    for (int i = n - 1; i > -1 ; --i) {
+    // We don't have to process all nodes, we can process them in any order
+    // This allows for iterative construction of the reduced graph.
+    // Also some orderings lead to faster computation than others.
+    // For demonstration purposes, shuffle the order we process the nodes
+    std::vector<int> numbers(n);
+    std::iota(numbers.begin(), numbers.end(), 0);
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 engine(seed);
+    std::shuffle(numbers.begin(), numbers.end(), engine);
+
+    for (int i : numbers) {
         for (int k_idx = reduced_col_pointers[i]; k_idx < reduced_col_ends[i]; ++k_idx) {
             int k = reduced_row_indices[k_idx];
             if (k == -1) continue;
